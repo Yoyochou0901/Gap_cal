@@ -11,6 +11,7 @@ def sta_epi_angle(station):
 #測站數量
 num_stations = int(input("測站數量: "))
 
+
 #震央座標
 epicenter_longitude = float(input("震央經度: "))
 epicenter_latitude = float(input("震央緯度: "))
