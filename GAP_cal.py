@@ -35,7 +35,7 @@ for i in range(num_stations):
         else:
             longitude = round(sta_list[sta_code]["Long"],2)
             latitude = round(sta_list[sta_code]["Lat"],2)
-    elif longitude == "":
+    if longitude == "":
         longitude = float(input("測站 {} 經度: ".format(i+1)))
         latitude = float(input("測站 {} 緯度: ".format(i+1)))
     station = (longitude, latitude)
