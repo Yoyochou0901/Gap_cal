@@ -1,5 +1,7 @@
 import math
-from stalist import *
+import requests
+import urllib3
+urllib3.disable_warnings()
 
 def sta_epi_angle(station):
     #計算震央及測站間的角度
@@ -9,38 +11,61 @@ def sta_epi_angle(station):
         angle += 360
     return(angle)
 
-#測站數量
-num_stations = int(input("測站數量: "))
-
-
-#震央座標
-epicenter_longitude = float(input("震央經度: "))
-epicenter_latitude = float(input("震央緯度: "))
-epicenter = (epicenter_longitude, epicenter_latitude)
-
-#各測站座標
-stations = []
-
-ans = input("輸入測站資訊時使用代碼(1)或座標(2)?:")
+ans = input("輸入測站資訊時使用檢知編號(1)或測站代碼(2)或座標(3)?:")
 if ans == "1":
+    print("使用編號")
+elif ans == "2":
     print("使用代碼")
 else:
     print("使用座標")
-for i in range(num_stations):
-    longitude = ""
-    if ans == "1":
-        sta_code = input("測站 {} 代碼: ".format(i+1))
-        if sta_code not in sta_list:
-            print("未找到測站，請輸入測站座標")
-        else:
-            longitude = round(sta_list[sta_code]["Long"],2)
-            latitude = round(sta_list[sta_code]["Lat"],2)
-    if longitude == "":
-        longitude = float(input("測站 {} 經度: ".format(i+1)))
-        latitude = float(input("測站 {} 緯度: ".format(i+1)))
-    station = (longitude, latitude)
-    sta_angle = sta_epi_angle(station)
-    stations.append((sta_angle))
+
+sta_list = requests.get("https://exptech.com.tw/api/v1/file/resource/station.json",verify=False).json()
+
+if ans == "1":
+    stations = []
+    url = f"https://exptech.com.tw/api/v1/earthquake/trem-info/{input('檢知編號: ')}"
+    data = requests.get(url,verify=False).json()
+    eqinfo = data["eq"]
+    if eqinfo == {}:
+        print("未找到震央資訊，請手動輸入震央座標")
+        epicenter_longitude = float(input("震央經度: "))
+        epicenter_latitude = float(input("震央緯度: "))
+        epicenter = (epicenter_longitude, epicenter_latitude)
+    else:
+        epicenter = (eqinfo["lon"],eqinfo["lat"])
+    for i in data["station"]:
+        station = (round(sta_list[i["uuid"]]["Long"],2), round(sta_list[i["uuid"]]["Lat"],2))
+        sta_angle = sta_epi_angle(station)
+        stations.append((sta_angle))
+    num_stations = len(data["station"])
+
+
+else:
+    #震央座標
+    epicenter_longitude = float(input("震央經度: "))
+    epicenter_latitude = float(input("震央緯度: "))
+    epicenter = (epicenter_longitude, epicenter_latitude)
+
+    #測站數量
+    num_stations = int(input("測站數量: "))
+
+    #各測站座標
+    stations = []
+    for i in range(num_stations):
+        longitude = ""
+        if ans == "2":
+            sta_code = input("測站 {} 代碼: ".format(i+1))
+            if sta_code not in sta_list:
+                print("未找到測站，請輸入測站座標")
+            else:
+                longitude = round(sta_list[sta_code]["Long"],2)
+                latitude = round(sta_list[sta_code]["Lat"],2)
+        if longitude == "":
+            longitude = float(input("測站 {} 經度: ".format(i+1)))
+            latitude = float(input("測站 {} 緯度: ".format(i+1)))
+        station = (longitude, latitude)
+        sta_angle = sta_epi_angle(station)
+        stations.append((sta_angle))
 
 #依測站與震央的角度排序
 stations = sorted(stations)
