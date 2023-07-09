@@ -21,9 +21,10 @@ else:
 
 sta_list = requests.get("https://exptech.com.tw/api/v1/file/resource/station.json",verify=False).json()
 
+alerttime = ""
 if ans == "1":
     stations = []
-    url = f"https://exptech.com.tw/api/v1/earthquake/trem-info/{input('檢知編號: ')}"
+    url = f"https://exptech.com.tw/api/v1/earthquake/trem-info/{input('檢知編號: ')}?key={input('金鑰(可不輸入): ')}"
     data = requests.get(url,verify=False).json()
     eqinfo = data["eq"]
     if eqinfo == {}:
@@ -33,12 +34,12 @@ if ans == "1":
         epicenter = (epicenter_longitude, epicenter_latitude)
     else:
         epicenter = (eqinfo["lon"],eqinfo["lat"])
+        alerttime = str(int(data["alert"]) - int(eqinfo["time"]))[:-3]
     for i in data["station"]:
         station = (round(sta_list[i["uuid"]]["Long"],2), round(sta_list[i["uuid"]]["Lat"],2))
         sta_angle = sta_epi_angle(station)
         stations.append((sta_angle))
     num_stations = len(data["station"])
-
 
 else:
     #震央座標
@@ -77,10 +78,12 @@ for i in range(num_stations):
     angle = stations[i+1] - stations[i]
     if angle > max_angle:
         max_angle = angle
-
+        
+print()
+if alerttime != "":print(f"發報速度: 震後 {alerttime} 秒")
 if num_stations == 2:
     #GAP明顯地震可只輸入2站資料
-    print("\nGAP1:", round(max_angle,2))
+    print("GAP1:", round(max_angle,2))
     print("GAP2:", round(360-max_angle,2))
 else:
-    print("\nGAP:", round(max_angle,2))
+    print("GAP:", round(max_angle,2))
