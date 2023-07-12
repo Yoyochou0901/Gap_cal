@@ -11,6 +11,13 @@ def sta_epi_angle(station):
         angle += 360
     return(angle)
 
+try: 
+    with open("key.txt","r") as f: key = f.read()
+except:
+    key = input("未找到金鑰，請輸入金鑰\n(TYA地震報告取得發震時間及震央使用，若無請按Enter寫入空白): ")
+    with open("key.txt","w+") as f: f.write(key)
+    print("已寫入金鑰，若需更改請編輯 key.txt 檔案\n")
+
 ans = input("輸入測站資訊時使用檢知編號(1)或測站代碼(2)或座標(3)?:")
 if ans == "1":
     print("使用編號")
@@ -24,7 +31,7 @@ sta_list = requests.get("https://exptech.com.tw/api/v1/file/resource/station.jso
 alerttime = ""
 if ans == "1":
     stations = []
-    url = f"https://exptech.com.tw/api/v1/earthquake/trem-info/{input('檢知編號: ')}?key={input('金鑰(可不輸入): ')}"
+    url = f"https://exptech.com.tw/api/v1/earthquake/trem-info/{input('檢知編號: ')}?key={key}"
     data = requests.get(url,verify=False).json()
     eqinfo = data["eq"]
     if eqinfo == {}:
