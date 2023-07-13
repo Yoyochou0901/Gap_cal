@@ -87,7 +87,9 @@ for i in range(num_stations):
         max_angle = angle
         
 print()
-if alerttime != "":print(f"發報速度: 震後 {alerttime} 秒")
+if ans == "1": 
+    print(f"觸發測站數量: {num_stations} 站")
+    if alerttime != "":print(f"發報速度: 震後 {alerttime} 秒")
 if num_stations == 2:
     #GAP明顯地震可只輸入2站資料
     print("GAP1:", round(max_angle,2))
