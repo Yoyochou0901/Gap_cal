@@ -43,10 +43,12 @@ if ans == "1":
         epicenter = (eqinfo["lon"],eqinfo["lat"])
         alerttime = str(int(data["alert"]) - int(eqinfo["time"]))[:-3]
     for i in data["station"]:
-        station = (round(sta_list[i["uuid"]]["Long"],2), round(sta_list[i["uuid"]]["Lat"],2))
-        sta_angle = sta_epi_angle(station)
-        stations.append((sta_angle))
-    num_stations = len(data["station"])
+        if i["uuid"] in sta_list:
+            station = (round(sta_list[i["uuid"]]["Long"],2), round(sta_list[i["uuid"]]["Lat"],2))
+            sta_angle = sta_epi_angle(station)
+            stations.append((sta_angle))
+        else: print(f"找不到代號 {i['uuid']} 測站")
+    num_stations = len(stations)
 
 else:
     #震央座標
@@ -87,7 +89,7 @@ for i in range(num_stations):
         max_angle = angle
         
 print()
-if ans == "1": 
+if ans == "1":
     print(f"觸發測站數量: {num_stations} 站")
     if alerttime != "":print(f"發報速度: 震後 {alerttime} 秒")
 if num_stations == 2:
